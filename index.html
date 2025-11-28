@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuperBase Mini CRM</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8958031691057428"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-stack">
+      <form id="loginForm" class="login-card" autocomplete="off">
+        <h2>Login</h2>
+        <p class="muted">Enter credentials to access the CRM.</p>
+        <p id="loginError" class="login-error hidden" role="alert"></p>
+        <label>
+          Username
+          <input type="text" id="loginUser" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        </label>
+        <label>
+          Password
+          <input type="password" id="loginPass" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+        </label>
+        <button type="submit" class="primary" style="width: 100%;">Enter</button>
+      </form>
+      <div class="login-subtext">
+        <p>In almost every sales organization, the top 20% of sales reps consistently generate around 80% of the results. This isn&rsquo;t just because they are more talented; it&rsquo;s because they use their time differently. The average sales rep&rsquo;s day can be divided into two main categories: selling and non-selling activities. Selling activities are things like prospecting, booking meetings, running demos, and asking for the business. Non-selling activities are admin tasks, managing internal affairs, writing repetitive emails, chasing information, and getting ready to sell. For many reps, this time split ends up being roughly 20% selling and 80% non-selling. The top performers flip that equation as much as possible. They look for ways to spend more time in real sales conversations and less time buried in busywork.</p>
+        <p>Sales is a difficult job. Prospects reschedule, inboxes fill up, tools don&rsquo;t always talk to each other, and it can feel like the day disappears before you&rsquo;ve done any real selling. But the number one way to get ahead is not working longer hours; it&rsquo;s maximizing your selling time during the hours you already have. That means protecting your calendar, batching your admin, and using systems and tools to handle as many repetitive tasks as possible. Someone at Google once said that if you have to do something more than three times, it should be automated. Top reps live by that idea. Every repetitive email, every manual follow-up, every copy-and-paste task is an opportunity to free up time for another call, another demo, another proposal.</p>
+        <p>This tool is designed to help you do exactly that: increase and automate your activity so you can focus on the part of the job that actually moves the needle. By automating prospecting steps and your regular emails, it reduces the mental load of remembering who to follow up with and when. Instead of hunting through old notes and spreadsheets, you can quickly see where every deal is in your funnel and what needs to happen next. The goal is simple: help you keep track of your pipeline, stay on top of your business, and shift more of your day from non-selling to selling activities. When you do that consistently, you put yourself in the position where the top 20% live—where your results compound, your confidence grows, and your numbers begin to separate you from the pack.</p>
+        <p>If anything this tool should help you send more prospecting emails and protect your mental energy against repetaivte emails.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" class="hidden">
+  <header>
+    <h1>SuperBase CRM</h1>
+    <p>Manage companies, contacts, and tasks with Supabase.</p>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-button active" data-section="companies">Companies</button>
+    <button class="tab-button" data-section="tasks">Tasks</button>
+    <button class="tab-button" data-section="pipeline">Pipeline</button>
+    <button class="tab-button" data-section="sequences">Sequences</button>
+    <button class="tab-button" data-section="templates">Templates</button>
+  </nav>
+
+  <main>
+    <section id="companiesSection" class="panel active" data-section="companies">
+      <div class="company-header">
+        <div>
+          <h2>Companies</h2>
+          <div class="company-controls">
+            <button id="addCompanyBtn" class="primary">Add Company</button>
+            <div id="companyStatus" class="status" role="status"></div>
+          </div>
+        </div>
+        <div class="company-search">
+          <input type="text" id="companySearchInput" placeholder="Search companies" autocomplete="off" autocorrect="off" autocapitalize="none" />
+          <button type="button" id="companySearchBtn" class="secondary">Search</button>
+        </div>
+      </div>
+      <table class="company-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Competitor</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Postal Code</th>
+            <th>Open Tasks</th>
+          </tr>
+        </thead>
+        <tbody id="companyList"></tbody>
+      </table>
+      <div id="companyPagination" class="pagination"></div>
+    </section>
+    <div id="companyDetailModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content company-detail">
+        <button type="button" id="closeCompanyDetailX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <div class="company-detail-header">
+          <div>
+            <p class="eyebrow">Company Details</p>
+            <h3 id="companyDetailName">Company</h3>
+            <p class="muted" id="companyDetailMeta"></p>
+          </div>
+        </div>
+
+        <div class="company-detail-grid">
+          <section class="company-card">
+            <div class="card-header">
+              <h4>Company Info</h4>
+              <button type="button" id="editCompanyInfoBtn" class="pill muted-pill">Edit</button>
+            </div>
+            <div id="companyInfoView" class="info-grid">
+              <div>
+                <p class="label">Phone</p>
+                <p id="companyInfoPhone">-</p>
+              </div>
+              <div>
+                <p class="label">City</p>
+                <p id="companyInfoCity">-</p>
+              </div>
+              <div>
+                <p class="label">Address</p>
+                <p id="companyInfoAddress">-</p>
+              </div>
+              <div>
+                <p class="label">Postal Code</p>
+                <p id="companyInfoPostal">-</p>
+              </div>
+              <div>
+                <p class="label">Competitor</p>
+                <p id="companyInfoCompetitor">-</p>
+              </div>
+              <div>
+                <p class="label">PRD</p>
+                <p id="companyInfoPrd">-</p>
+              </div>
+              <div>
+                <p class="label">Industry</p>
+                <p id="companyInfoIndustry">-</p>
+              </div>
+            </div>
+
+            <div id="companyInfoEdit" class="info-grid hidden">
+              <label>
+                Company Name
+                <input type="text" id="companyInfoNameInput" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other">
+              </label>
+              <label>
+                Phone
+                <input type="text" id="companyInfoPhoneInput" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other">
+              </label>
+              <label>
+                Address
+                <input type="search" id="companyInfoAddressInput" name="companyInfoAddressInput" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" aria-autocomplete="list" inputmode="search">
+              </label>
+              <label>
+                City
+                <input type="search" id="companyInfoCityInput" name="companyInfoCityInput" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" aria-autocomplete="list" inputmode="search">
+              </label>
+              <label>
+                Postal Code
+                <input type="search" id="companyInfoPostalInput" name="companyInfoPostalInput" autocomplete="new-password" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" aria-autocomplete="list" inputmode="search">
+              </label>
+              <label>
+                Competitor
+                <select id="companyInfoCompetitorSelect">
+                  <option value="">Select competitor (optional)</option>
+                  <option value="Canadian Linen">Canadian Linen</option>
+                  <option value="Unifirst">Unifirst</option>
+                  <option value="Alsco">Alsco</option>
+                  <option value="Executive Mat">Executive Mat</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+              <label id="companyInfoCompetitorOtherLabel" class="hidden">
+                Other Competitor
+                <input type="text" id="companyInfoCompetitorOther" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other">
+              </label>
+              <label>
+                PRD
+                <input type="text" id="companyInfoPrdInput" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other">
+              </label>
+              <label>
+                Industry
+                <input type="text" id="companyInfoIndustryInput" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" data-form-type="other">
+              </label>
+            </div>
+
+            <div id="companyInfoActions" class="form-actions right hidden">
+              <button type="button" id="deleteCompanyInlineBtn" class="danger-btn secondary small-btn hidden">Delete Company</button>
+              <button type="button" id="saveCompanyInfoBtn" class="primary small-btn">Save</button>
+              <button type="button" id="cancelCompanyInfoBtn" class="secondary small-btn">Cancel</button>
+            </div>
+          </section>
+
+          <section class="company-card summary-card">
+            <div class="card-header">
+              <h4>Summary</h4>
+            </div>
+            <ul class="summary-list">
+              <li><span>Contacts</span><strong id="summaryContacts">0</strong></li>
+              <li><span>Open opps</span><strong id="summaryOpportunities">0</strong></li>
+              <li><span>Open tasks</span><strong id="summaryTasks">0</strong></li>
+            </ul>
+          </section>
+        </div>
+
+        <div class="company-detail-grid">
+        <section class="company-card">
+          <div class="card-header">
+            <h4>Contacts</h4>
+            <button type="button" id="addContactFromCompanyBtnSecondary" class="link-btn">Add contact</button>
+          </div>
+          <div id="companyContactsList" class="stack-list"></div>
+        </section>
+
+          <section class="company-card">
+            <div class="card-header">
+              <h4>Opportunities</h4>
+              <button type="button" class="link-btn" id="companyAddOpportunityBtn">New</button>
+            </div>
+            <div id="companyOpportunitiesList" class="stack-list"></div>
+          </section>
+        </div>
+
+        <section class="company-card">
+          <div class="card-header">
+            <h4>Open Tasks</h4>
+            <div class="card-header-actions">
+              <button type="button" class="secondary small-btn" id="companyDetailNewTaskBtn">New Task</button>
+              <div class="legend">
+                <span class="dot dot-red"></span><span class="legend-label">Past due</span>
+                <span class="dot dot-amber"></span><span class="legend-label">Due soon</span>
+              </div>
+            </div>
+          </div>
+          <div id="companyTasksList" class="task-stack"></div>
+        </section>
+      </div>
+  </div>
+
+  <div id="contactDetailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content contact-detail">
+      <button type="button" id="closeContactDetailBtn" class="modal-close" aria-label="Close">&times;</button>
+      <div class="contact-detail-header">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h3 id="contactDetailName">Contact</h3>
+            <p class="muted" id="contactDetailMeta"></p>
+          </div>
+        </div>
+
+        <div class="company-detail-grid">
+          <section class="company-card contact-card-block">
+            <div class="card-header">
+              <h4>Contact Info</h4>
+              <span class="link-btn" id="editContactInfoBtn">Edit</span>
+            </div>
+            <div id="contactInfoView" class="info-grid contact-info-grid">
+              <div>
+                <p class="label">Email</p>
+                <p id="contactInfoEmail">-</p>
+              </div>
+              <div>
+                <p class="label">Phone</p>
+                <p id="contactInfoPhone">-</p>
+              </div>
+              <div>
+                <p class="label">Spoke to</p>
+                <p id="contactInfoSpokeTo">-</p>
+              </div>
+              <div>
+                <p class="label">Company</p>
+                <p id="contactInfoCompany">-</p>
+              </div>
+            </div>
+
+            <div id="contactInfoEdit" class="info-grid contact-info-grid hidden">
+              <label>
+                First Name
+                <input type="text" id="contactInfoFirstInput">
+              </label>
+              <label>
+                Last Name
+                <input type="text" id="contactInfoLastInput">
+              </label>
+              <label>
+                Email
+                <input type="email" id="contactInfoEmailInput">
+              </label>
+              <label>
+                Phone
+                <input type="text" id="contactInfoPhoneInput">
+              </label>
+              <label>
+                Spoke to
+                <input type="text" id="contactInfoSpokeToInput">
+              </label>
+              <div>
+                <p class="label">Company</p>
+                <p id="contactInfoCompanyReadonly">-</p>
+              </div>
+            </div>
+
+            <div id="contactInfoActions" class="form-actions right hidden">
+              <button type="button" id="deleteContactInlineBtn" class="danger-btn secondary small-btn hidden">Delete contact</button>
+              <button type="button" id="saveContactInfoBtn" class="primary small-btn">Save</button>
+              <button type="button" id="cancelContactInfoBtn" class="secondary small-btn">Cancel</button>
+            </div>
+          </section>
+
+          <section class="company-card sequence-card">
+            <div class="card-header">
+              <h4>Sequences</h4>
+              <button type="button" id="contactEnrollBtn" class="secondary small-btn">Enroll</button>
+            </div>
+            <div id="contactSequencesList" class="sequence-list"></div>
+          </section>
+        </div>
+
+        <section class="company-card activity-card">
+          <div class="card-header">
+            <h4>Open Tasks</h4>
+            <div class="card-header-actions">
+              <button type="button" id="contactActivityNewTaskBtn" class="secondary small-btn">New Task</button>
+              <div class="legend">
+                <span class="dot dot-red"></span><span class="legend-label">Past due</span>
+                <span class="dot dot-amber"></span><span class="legend-label">Due soon</span>
+              </div>
+            </div>
+          </div>
+          <div id="contactActivityList" class="activity-list"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="companyContactModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content contact-modal">
+        <button type="button" class="modal-close danger" id="closeCompanyContactX" aria-label="Close">&times;</button>
+        <div class="contact-form-header">
+          <p class="eyebrow">Contact</p>
+          <h2>Add contact</h2>
+          <p class="muted">Create a person record so you can track calls, emails, and tasks.</p>
+        </div>
+        <form id="companyContactForm" class="contact-form">
+          <div class="contact-form-grid">
+            <label>
+              First Name *
+              <input type="text" id="companyContactFirst" required placeholder="e.g. Terry" autocomplete="off">
+            </label>
+            <label>
+              Last Name
+              <input type="text" id="companyContactLast" placeholder="e.g. Oakley" autocomplete="off">
+            </label>
+            <label>
+              Email *
+              <input type="email" id="companyContactEmail" required placeholder="name@example.com" autocomplete="off">
+            </label>
+            <label>
+              Phone
+              <input type="text" id="companyContactPhone" placeholder="e.g. (780) 555-0199" autocomplete="off">
+            </label>
+            <label>
+              Spoke to
+              <input type="text" id="companyContactSpokeTo" placeholder="Emerald" autocomplete="off">
+            </label>
+          </div>
+          <div class="contact-form-footer">
+            <p class="muted small">First name and email are enough to start tracking activity.</p>
+            <div class="form-actions inline-actions">
+              <button type="submit" class="primary">Save contact</button>
+            </div>
+          </div>
+          <div id="companyContactStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="contactSequenceEnrollModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content sequence-enroll-modal">
+        <button type="button" class="modal-close danger" id="closeContactSequenceEnrollBtn" aria-label="Close">&times;</button>
+        <div class="company-form-header">
+          <p class="eyebrow">Enroll Contact</p>
+          <h2>Select a sequence</h2>
+          <p class="muted">Start immediately or choose a future start date.</p>
+        </div>
+        <div class="sequence-enroll-form">
+          <label>
+            Sequence
+            <input
+              type="search"
+              id="contactSequenceEnrollInput"
+              placeholder="Search sequence"
+              autocomplete="off"
+              name="contactSequenceEnrollInput"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+            <input type="hidden" id="contactSequenceEnrollSequenceId">
+          </label>
+          <div class="sequence-enroll-options">
+            <label class="checkbox-inline">
+              <input type="checkbox" id="contactSequenceStartNow" checked>
+              <span>Start right away</span>
+            </label>
+            <label id="contactSequenceStartDateLabel" class="sequence-start-label">
+              <span class="muted">Start at</span>
+              <input type="date" id="contactSequenceStartDateTime">
+            </label>
+            <label class="checkbox-inline">
+              <input type="checkbox" id="contactSequenceWeekdaysOnly" checked>
+              <span>Weekdays only</span>
+            </label>
+          </div>
+          <div class="form-actions right">
+            <button type="button" id="contactSequenceEnrollSubmit" class="primary">Enroll</button>
+          </div>
+          <div id="contactSequenceEnrollStatus" class="status" role="status"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="companyModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content company-modal">
+        <button type="button" class="modal-close danger" id="closeCompanyModalX" aria-label="Close">&times;</button>
+        <div class="company-form-header">
+          <p class="eyebrow">Company</p>
+          <h2>Add company</h2>
+          <p class="muted">Capture basic details now. You can always add more fields later.</p>
+        </div>
+        <form id="companyForm" class="company-form" autocomplete="off">
+          <div class="company-form-grid">
+            <label class="full-width">
+              Company name *
+              <input type="text" id="companyName" name="companyName" required placeholder="e.g. Loughran Osteopathy Clinic" autocomplete="off" autocorrect="off" autocapitalize="none">
+            </label>
+            <label class="full-width">
+              Address
+              <input type="text" id="companyAddress" name="companyAddressNew" placeholder="Street and number" autocomplete="new-password" autocorrect="off" autocapitalize="none" data-form-type="other">
+            </label>
+            <label>
+              City
+              <input type="text" id="companyCity" name="companyCityNew" placeholder="City" autocomplete="new-password" autocorrect="off" autocapitalize="none" data-form-type="other">
+            </label>
+            <label>
+              Postal code
+              <input type="text" id="companyPostal" name="companyPostalNew" placeholder="e.g. T6X 0A1" autocomplete="new-password" autocorrect="off" autocapitalize="none" data-form-type="other">
+            </label>
+            <label>
+              Phone
+              <input type="text" id="companyPhone" name="companyPhone" placeholder="e.g. (780) 555-0199" autocomplete="off" autocorrect="off" autocapitalize="none">
+            </label>
+            <label class="full-width">
+              Competitor
+              <select id="companyCompetitor" name="companyCompetitor" autocomplete="off">
+                <option value="">Select competitor (optional)</option>
+                <option value="Canadian Linen">Canadian Linen</option>
+                <option value="Unifirst">Unifirst</option>
+                <option value="Alsco">Alsco</option>
+                <option value="Executive Mat">Executive Mat</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+            <label id="companyCompetitorOtherLabel" class="hidden full-width">
+              Other Competitor *
+              <input type="text" id="companyCompetitorOther" name="companyCompetitorOther" placeholder="Enter competitor" autocomplete="off" autocorrect="off" autocapitalize="none">
+            </label>
+            <label class="full-width">
+              PRD (optional)
+              <input type="text" id="companyPrd" name="companyPrd" placeholder="Enter PRD" autocomplete="off" autocorrect="off" autocapitalize="none" data-form-type="other">
+            </label>
+            <label class="full-width">
+              Industry (optional)
+              <input type="text" id="companyIndustry" name="companyIndustry" placeholder="Enter industry" autocomplete="off" autocorrect="off" autocapitalize="none" data-form-type="other">
+            </label>
+          </div>
+          <div class="company-form-footer">
+            <p class="muted small">Only a name is required. You can enrich the record after your first meeting.</p>
+            <div class="form-actions inline-actions">
+              <button type="button" id="cancelCompanyBtn" class="secondary">Cancel</button>
+              <button type="submit" class="primary">Save company</button>
+            </div>
+          </div>
+          <div id="companyModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <section id="contactsSection" class="panel" data-section="contacts">
+      <h2>Contacts</h2>
+      <label for="contactCompanySelect">Choose Company</label>
+      <select id="contactCompanySelect">
+        <option value="">Select a company</option>
+      </select>
+      <form id="contactForm">
+        <label>
+          First Name *
+          <input type="text" id="contactFirstName" required>
+        </label>
+        <label>
+  Last Name
+  <input type="text" id="contactLastName">
+</label>
+
+        <label>
+          Email
+          <input type="email" id="contactEmail">
+        </label>
+        <label>
+          Phone
+          <input type="text" id="contactPhone">
+        </label>
+        <label>
+          Spoke to
+          <input type="text" id="contactSpokeTo">
+        </label>
+        <button type="submit">Add Contact</button>
+      </form>
+      <div id="contactStatus" class="status" role="status"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="contactList"></tbody>
+      </table>
+    </section>
+
+    <section id="tasksSection" class="panel" data-section="tasks">
+      <div class="section-header">
+        <div class="tasks-title-row">
+          <h2>Tasks</h2>
+          <div class="task-chips">
+            <div class="task-chip neutral" id="todayFilterChip" data-filter="today" role="button" tabindex="0">Today: <span id="todayCount">0</span> due</div>
+            <div class="task-chip warning" id="overdueFilterChip" data-filter="overdue" role="button" tabindex="0">Overdue: <span id="overdueCount">0</span></div>
+            <div class="task-chip success" id="weekFilterChip" data-filter="week" role="button" tabindex="0">This week: <span id="weekCount">0</span></div>
+            <div class="task-chip ghost" id="customFilterChip" data-filter="custom" role="button" tabindex="0">Advanced filter</div>
+            <div class="task-chip clear hidden" id="clearFilterChip" role="button" tabindex="0">Clear filter</div>
+          </div>
+        </div>
+        <button type="button" id="openTaskModalBtn" class="primary">Add Task</button>
+      </div>
+
+      <div id="taskStatus" class="status" role="status"></div>
+      <div id="taskList" class="task-buckets"></div>
+    </section>
+
+    <div id="taskFilterModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button type="button" class="modal-close danger" id="closeTaskFilterModalBtn" aria-label="Close">&times;</button>
+        <h3>Filter Tasks</h3>
+        <form id="taskFilterForm">
+          <div class="filter-fieldset">
+            <label for="taskFilterSelect" class="filter-label">Date range</label>
+            <select id="taskFilterSelect" class="filter-select" name="taskFilterSelect">
+              <option value="">All open tasks</option>
+              <option value="closed">All closed tasks</option>
+              <option value="overdue">Overdue</option>
+              <option value="today">Due today</option>
+              <option value="next7">Due in the next 7 days</option>
+              <option value="last7">Due in the last 7 days</option>
+              <option value="range">Custom range</option>
+            </select>
+            <div id="customRangeInputs" class="custom-range hidden">
+              <label>Start date
+                <input type="date" id="taskFilterStart">
+              </label>
+              <label>End date
+                <input type="date" id="taskFilterEnd">
+              </label>
+            </div>
+
+            <div class="filter-grid">
+              <label class="filter-group">
+                <span class="filter-label">Company</span>
+                <input id="taskFilterCompanyInput" class="filter-select" placeholder="Search company" autocomplete="off" list="taskFilterCompanyOptions">
+                <datalist id="taskFilterCompanyOptions"></datalist>
+              </label>
+              <label class="filter-group">
+                <span class="filter-label">Sequence</span>
+                <select id="taskFilterSequenceSelect" class="filter-select">
+                  <option value="">Any sequence</option>
+                </select>
+              </label>
+              <label class="filter-group">
+                <span class="filter-label">Task type</span>
+                <select id="taskFilterTypeSelect" class="filter-select">
+                  <option value="">Any type</option>
+                  <option value="email">Email</option>
+                  <option value="call">Call</option>
+                </select>
+              </label>
+              <label class="filter-group checkbox-group">
+                <input type="checkbox" id="taskFilterOpportunity">
+                <span>Only tasks with an opportunity</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:0.75rem;">
+            <button type="submit" class="primary">Apply</button>
+            <button type="button" id="clearTaskFilterBtn" class="secondary">Clear</button>
+          </div>
+          <div id="taskFilterStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="taskModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button type="button" id="closeTaskModalBtn" class="modal-close" aria-label="Close">&times;</button>
+        <h3>Create Task</h3>
+        <form id="taskForm" class="task-modal-form">
+          <div class="task-form-grid">
+            <div class="task-form-left">
+              <div class="task-inline-fields">
+                <label class="task-field">
+                  <span class="task-label">Task Type *</span>
+                  <select id="taskTypeSelect" required class="task-pill-input">
+                    <option value="email" selected>Email</option>
+                    <option value="call">Call</option>
+                  </select>
+                </label>
+                <label class="task-field">
+                  <span class="task-label">Due Date</span>
+                  <input type="date" id="taskDueDate" class="task-pill-input" placeholder="yyyy-mm-dd">
+                  <span class="task-hint">Defaults to today if left blank.</span>
+                </label>
+              </div>
+
+              <label id="taskTemplateLabel" class="task-field">
+                <span class="task-label">Template <span class="task-optional">(Optional)</span></span>
+                <input id="taskTemplateInput" class="task-pill-input" placeholder="Search templates" autocomplete="off">
+              </label>
+            </div>
+
+            <div class="task-form-right">
+              <p class="task-related-title">Related Records</p>
+              <div class="task-related-card">
+                <label class="task-field">
+                  <span class="task-label">Company *</span>
+                  <input id="taskModalCompanyInput" class="task-pill-input" placeholder="Search company" autocomplete="off" required>
+                </label>
+                <label class="task-field">
+                  <span class="task-label">Contact <span class="task-optional">(Optional)</span></span>
+                  <select id="taskModalContactSelect" class="task-pill-input">
+                    <option value="">Select a contact</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions task-modal-actions">
+            <button type="submit" class="primary">Create Task</button>
+          </div>
+          <div id="taskModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+  <div id="taskDetailModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content task-detail">
+      <button type="button" id="closeTaskDetailBtn" class="modal-close" aria-label="Close">&times;</button>
+      <div id="taskDetailContent"></div>
+      <div class="task-detail-footer">
+        <p class="muted small">Completing this task keeps your sequence moving on time.</p>
+        <button type="button" id="taskDetailDeleteBtn" class="link-danger">Delete task</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sequenceTaskModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content task-detail">
+      <button type="button" id="closeSequenceTaskBtn" class="modal-close" aria-label="Close">&times;</button>
+      <div id="sequenceTaskContent"></div>
+    </div>
+  </div>
+
+    <section id="pipelineSection" class="panel hidden" data-section="pipeline">
+      <div class="section-header">
+        <h2>Pipeline</h2>
+        <div class="pipeline-controls">
+          <div class="pipeline-select-wrapper" id="pipelineSelectWrapper">
+            <span class="pipeline-select-label">
+              <span>View Pipeline</span>
+              <select id="pipelineSelect">
+                <option value="">Select a pipeline</option>
+              </select>
+            </span>
+          </div>
+          <div class="pipeline-name-edit-wrapper hidden" id="pipelineNameEditWrapper">
+            <input type="text" id="pipelineNameEditInput" class="pipeline-name-edit" placeholder="Pipeline name" autocomplete="off">
+          </div>
+          <button id="addOpportunityBtn" class="primary">Add Opportunity</button>
+          <button id="addPipelineStageBtn" class="secondary">Create Pipeline</button>
+          <button id="addPipelineStepBtn" class="secondary">+ Add Step</button>
+          <button id="editPipelineBtn" class="secondary">Edit Pipeline</button>
+          <button id="savePipelineEditBtn" class="primary hidden">Save</button>
+          <button id="cancelPipelineEditBtn" class="secondary hidden">Cancel</button>
+          <button id="deletePipelineBtn" class="danger-btn secondary hidden">Delete Pipeline</button>
+        </div>
+      </div>
+
+      <div id="pipelineBoard" class="pipeline-board">
+        <!-- Columns will be rendered here via JavaScript -->
+      </div>
+    </section>
+
+    <section id="sequencesSection" class="panel hidden" data-section="sequences">
+      <div class="section-header">
+        <h2>Sequences</h2>
+        <div class="pipeline-controls">
+          <button id="quickSequenceEnrollBtn" class="secondary" type="button">Enroll Contact</button>
+          <button id="addSequenceBtn" class="primary">Create Sequence</button>
+        </div>
+      </div>
+      <div id="sequenceStatus" class="status" role="status"></div>
+      <div id="sequenceListContainer">
+        <h3>Saved Sequences</h3>
+        <div id="sequenceList" class="template-list"></div>
+      </div>
+      <div id="sequenceBoard" class="pipeline-board">
+        <!-- Sequence steps render here -->
+      </div>
+    </section>
+
+    <div id="sequenceQuickEnrollModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content sequence-step-modal">
+        <button type="button" id="closeSequenceQuickEnrollX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3>Enroll Contact</h3>
+        <form id="sequenceQuickEnrollForm" autocomplete="off">
+          <label>
+            Sequence *
+            <input
+              type="search"
+              id="quickEnrollSequenceInput"
+              placeholder="Search sequence"
+              autocomplete="off"
+              name="quickEnrollSequenceInput"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+          </label>
+          <label>
+            Contact *
+            <input
+              type="search"
+              id="quickEnrollContactInput"
+              placeholder="Search contact"
+              autocomplete="off"
+              name="quickEnrollContactInput"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+          </label>
+          <div class="sequence-start-row">
+            <label class="sequence-start-inline">
+              <input type="checkbox" id="quickEnrollStartNow" checked>
+              Start right away
+            </label>
+            <label class="sequence-start-inline">
+              Start at
+              <input type="date" id="quickEnrollStartDate" disabled>
+            </label>
+            <label class="sequence-start-inline">
+              <input type="checkbox" id="quickEnrollWeekdaysOnly" checked>
+              Send only on weekdays
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="primary">Enroll</button>
+          </div>
+          <div id="sequenceQuickEnrollStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="opportunityModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content opportunity-modal">
+        <button type="button" id="closeOpportunityModalX" class="modal-close" aria-label="Close">&times;</button>
+        <h3>New Opportunity</h3>
+        <form id="opportunityForm" class="opportunity-form">
+          <div class="opp-stage-row">
+            <label>
+              Pipeline *
+              <select id="opportunityPipelineSelect" required>
+                <option value="">Select pipeline</option>
+              </select>
+            </label>
+            <label>
+              Stage
+              <select id="opportunityStageSelect" required>
+                <option value="">Select stage</option>
+              </select>
+            </label>
+          </div>
+          <div class="opportunity-form-grid">
+            <div class="opp-card">
+              <p class="opp-section-title">Core Details</p>
+              <label>
+                Company *
+                <input id="opportunityCompanyInput" list="opportunityCompanyOptions" placeholder="Search company" autocomplete="off" required>
+                <datalist id="opportunityCompanyOptions"></datalist>
+              </label>
+              <label>
+                Contact
+                <select id="opportunityContactSelect">
+                  <option value="">Optional contact</option>
+                </select>
+              </label>
+            </div>
+            <div class="opp-card">
+              <p class="opp-section-title">Value</p>
+              <label>
+                Opportunity value
+                <div class="opp-value-input">
+                  <span class="prefix">$</span>
+                  <input type="number" id="opportunityValue" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="form-actions right">
+            <button type="submit" class="primary">Save opportunity</button>
+          </div>
+          <div id="opportunityStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="opportunityDetailModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content opp-detail-modal">
+        <button type="button" id="closeOpportunityDetailBtn" class="modal-close" aria-label="Close">&times;</button>
+        <div id="opportunityDetailContent"></div>
+        <div id="opportunityDetailActions" class="form-actions">
+          <button type="button" id="editOpportunityBtn" class="secondary">Edit</button>
+          <button type="button" id="deleteOpportunityBtn" class="danger-btn secondary">Delete</button>
+        </div>
+        <form id="opportunityEditForm" class="hidden">
+          <div class="detail-section">
+            <label>
+              Opportunity Name *
+              <input type="text" id="opportunityEditName" required autocomplete="off">
+            </label>
+            <label>
+              Contact
+              <select id="opportunityEditContact">
+                <option value="">None</option>
+              </select>
+            </label>
+            <label>
+              Stage
+              <select id="opportunityEditStage" required></select>
+            </label>
+            <label>
+              Value
+              <input type="number" id="opportunityEditValue" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="submit" id="saveOpportunityEditBtn" class="primary">Save</button>
+            <button type="button" id="cancelOpportunityEditBtn" class="secondary">Cancel</button>
+          </div>
+          <div id="opportunityEditStatus" class="status" role="status"></div>
+        </form>
+        <div id="opportunityDeleteConfirm" class="hidden">
+          <p>Are you sure you want to delete this opportunity?</p>
+          <div class="form-actions">
+            <button type="button" id="confirmOpportunityDeleteBtn" class="danger-btn">Yes, Delete</button>
+            <button type="button" id="cancelOpportunityDeleteBtn" class="secondary">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="pipelineStepModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h3>Add Step</h3>
+        <form id="pipelineStepForm">
+          <label>
+            Step Name *
+            <input type="text" id="pipelineStepInput" required>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Add Step</button>
+            <button type="button" id="cancelPipelineStepBtn" class="secondary">Cancel</button>
+          </div>
+          <div id="pipelineStepModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="pipelineModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content pipeline-modal">
+        <button type="button" id="closePipelineModalX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3>Create Pipeline</h3>
+        <form id="pipelineForm">
+          <label>
+            Pipeline Name *
+            <input type="text" id="pipelineNameInput" required autocomplete="off">
+          </label>
+          <div class="form-actions">
+            <button type="submit">Create</button>
+          </div>
+          <div id="pipelineModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="sequenceModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content sequence-modal">
+        <button type="button" id="closeSequenceModalX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3>Create Sequence</h3>
+        <form id="sequenceForm">
+          <label>
+            Sequence Name *
+            <input type="text" id="sequenceNameInput" required>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Create</button>
+          </div>
+          <div id="sequenceModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="sequenceStepModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content sequence-step-modal">
+        <button type="button" id="closeSequenceStepModalX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3>Add Sequence Step</h3>
+        <form id="sequenceStepForm" autocomplete="off">
+          <label>
+            Step Name *
+            <input
+              type="text"
+              id="sequenceStepNameInput"
+              required
+              autocomplete="off"
+              name="sequenceStepNameInput"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-form-type="other"
+            >
+          </label>
+          <label>
+            Step Type *
+            <select id="sequenceStepTypeSelect" required>
+              <option value="">Select type</option>
+              <option value="email">Email</option>
+              <option value="call">Call</option>
+            </select>
+          </label>
+          <label>
+            Delay (days after previous step)
+            <input type="number" id="sequenceStepDelayInput" min="0" step="1" value="0" autocomplete="off">
+          </label>
+          <label id="sequenceStepTemplateLabel" class="hidden">
+            Email Template *
+            <input
+              type="search"
+              id="sequenceStepTemplateSearch"
+              placeholder="Search template"
+              autocomplete="off"
+              name="sequenceStepTemplateSearch"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+            <input type="hidden" id="sequenceStepTemplateId">
+          </label>
+          <div class="form-actions">
+            <button type="submit">Add Step</button>
+          </div>
+          <div id="sequenceStepModalStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="sequencePreviewModal" class="modal hidden" role="dialog" aria-modal="true">
+        <div class="modal-content">
+          <button type="button" id="closeSequencePreviewBtn" class="modal-close" aria-label="Close">&times;</button>
+          <div class="modal-header-row">
+            <h3>Sequence Steps</h3>
+            <div class="modal-header-actions">
+              <button type="button" id="addSequenceStepInModalBtn" class="secondary hidden">+ Add Step</button>
+              <button type="button" id="editSequenceBtn" class="secondary">Edit</button>
+              <button type="button" id="saveSequenceEditBtn" class="primary hidden">Save</button>
+              <button type="button" id="cancelSequenceEditBtn" class="secondary hidden">Cancel</button>
+              <button type="button" id="deleteSequenceBtn" class="danger-btn secondary hidden">Delete Sequence</button>
+              <button type="button" id="sequenceEnrollmentListBtn" class="secondary">Contacts currently enrolled</button>
+            </div>
+          </div>
+        <div class="template-preview">
+          <label>
+            Enroll Contact
+            <input
+              id="sequenceEnrollInput"
+              placeholder="Search contact"
+              autocomplete="off"
+              name="sequenceEnrollInput"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+          </label>
+          <div class="sequence-start-row">
+            <label class="sequence-start-inline">
+              <input type="checkbox" id="sequenceStartNow" checked>
+              Start right away
+            </label>
+            <label class="sequence-start-inline">
+              Start at
+              <input type="date" id="sequenceStartDateTime" disabled>
+            </label>
+            <label class="sequence-start-inline">
+              <input type="checkbox" id="sequenceWeekdaysOnly" checked>
+              Send only on weekdays
+            </label>
+          </div>
+          <button type="button" id="sequenceEnrollBtn" class="primary small-btn">Enroll</button>
+          <div id="sequenceEnrollStatus" class="status" role="status"></div>
+        </div>
+        <div id="sequencePreviewContent"></div>
+      </div>
+    </div>
+
+    <div id="sequenceEnrollmentsModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content wide-modal">
+        <button type="button" id="closeSequenceEnrollmentsBtn" class="modal-close" aria-label="Close">&times;</button>
+        <h3>Contacts Currently Enrolled</h3>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Contact</th>
+                <th>Next Step</th>
+                <th>Scheduled Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="sequenceEnrollmentsBody">
+              <tr><td colspan="5" class="muted">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="sequenceUnenrollConfirmModal" class="modal hidden confirm-modal" role="dialog" aria-modal="true">
+      <div class="modal-content small-modal">
+        <h3>Unenroll Contact</h3>
+        <p>Are you sure you want to unenroll this contact and remove their open sequence tasks?</p>
+        <div class="form-actions right">
+          <button type="button" id="confirmSequenceUnenrollBtn" class="danger-btn">Yes, unenroll</button>
+          <button type="button" id="cancelSequenceUnenrollBtn" class="secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="contactDeleteConfirmModal" class="modal hidden confirm-modal" role="dialog" aria-modal="true">
+      <div class="modal-content small-modal">
+        <h3>Delete Contact</h3>
+        <p id="contactDeleteConfirmText">Are you sure you want to delete this contact? This will delete their tasks and unassign them from opportunities.</p>
+        <div class="form-actions right">
+          <button type="button" id="confirmContactDeleteBtn" class="danger-btn">Yes, delete</button>
+          <button type="button" id="cancelContactDeleteBtn" class="secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sequenceStepEditModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content sequence-step-edit-modal">
+        <button type="button" id="closeSequenceStepEditModalX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3>Edit Sequence Step</h3>
+        <form id="sequenceStepEditForm" autocomplete="off">
+          <label>
+            Step Name *
+            <input
+              type="text"
+              id="sequenceStepEditName"
+              required
+              autocomplete="off"
+              name="sequenceStepEditName"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-form-type="other"
+            >
+          </label>
+          <label>
+            Delay (days after previous step)
+            <input type="number" id="sequenceStepEditDelay" min="0" step="1" value="0" autocomplete="off">
+          </label>
+          <label id="sequenceStepEditTemplateLabel">
+            Email Template
+            <input
+              type="search"
+              id="sequenceStepEditTemplateSearch"
+              placeholder="Search template"
+              autocomplete="off"
+              name="sequenceStepEditTemplateSearch"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+            <input type="hidden" id="sequenceStepEditTemplateId">
+          </label>
+          <div class="form-actions">
+            <button type="submit" id="saveSequenceStepEditBtn" class="primary">Save</button>
+          </div>
+          <div id="sequenceStepEditStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <section id="templatesSection" class="panel hidden" data-section="templates">
+      <h2>Email Templates</h2>
+      <div class="template-controls">
+        <label class="template-search">
+          <span class="sr-only">Search templates</span>
+          <input
+            type="search"
+            id="templateSearchInput"
+            placeholder="Search by title"
+            autocomplete="off"
+          >
+        </label>
+        <button id="showTemplateFormBtn" class="primary" type="button">Create Template</button>
+      </div>
+      <div id="templateListContainer">
+        <h3>Saved Templates</h3>
+        <div id="templateList" class="template-list"></div>
+      </div>
+    </section>
+
+    <div id="templateModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button type="button" id="closeTemplateModalX" class="modal-close danger small" aria-label="Close">&times;</button>
+        <h3 id="templateModalTitle">New Template</h3>
+        <form id="templateForm" class="template-form" autocomplete="off">
+          <label>
+            Template Name *
+            <input type="text" id="templateName" required autocomplete="off">
+          </label>
+          <label>
+            Subject *
+            <input type="text" id="templateSubject" required autocomplete="off">
+          </label>
+          <label>
+            Body *
+            <textarea id="templateBody" rows="8" required autocomplete="off"></textarea>
+          </label>
+        <div class="template-placeholders">
+          <span>Add placeholder:</span>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{first_name}}">First Name</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{last_name}}">Last Name</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{company_name}}">Company Name</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{spoke_to}}">Spoke To</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{competitor}}">Competitor</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{prd}}">PRD</button>
+            <button type="button" class="secondary placeholder-btn" data-placeholder="{{industry}}">Industry</button>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Save Template</button>
+          <button type="button" id="deleteTemplateBtn" class="secondary danger-btn hidden">Delete</button>
+          </div>
+          <div id="templateStatus" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+
+    <div id="templateDeleteModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h3>Delete Template</h3>
+        <p>Are you sure you want to delete this template?</p>
+        <div class="form-actions">
+          <button type="button" id="confirmTemplateDeleteBtn" class="danger-btn">Yes, Delete</button>
+          <button type="button" id="cancelTemplateDeleteBtn" class="secondary">No</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="templatePreviewModal" class="modal hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <button type="button" id="closeTemplatePreviewX" class="modal-close" aria-label="Close">✕</button>
+        <h3 id="templatePreviewTitle" class="template-preview-title">Preview Template</h3>
+        <div class="template-contact-row" style="display: flex; gap: 12px; align-items: flex-end;">
+          <label class="template-contact-label" style="flex: 1;">
+            Select Contact
+            <input
+              id="templateContactSelect"
+              type="search"
+              placeholder="Search contact"
+              autocomplete="off"
+              name="templateContactSelect"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+              aria-autocomplete="list"
+              inputmode="search"
+              data-autocomplete="off"
+            >
+          </label>
+          <button type="button" id="generateEmailBtn" class="primary small-btn" style="margin-left: auto;">Generate Email</button>
+        </div>
+        <div id="templateContactEmailRow" class="hidden template-preview-email">
+          <strong>Email:</strong>
+          <span id="templateContactEmailValue">-</span>
+          <button type="button" class="secondary small-btn" id="copyTemplateContactEmailBtn">Copy</button>
+        </div>
+        <div class="template-preview">
+          <p>
+            <strong>Subject:</strong>
+            <span id="previewSubject">-</span>
+            <button type="button" class="secondary small-btn" id="copySubjectBtn">Copy</button>
+          </p>
+          <div class="template-body-row">
+            <div class="template-body-header">
+              <strong>Body:</strong>
+              <button type="button" class="secondary small-btn" id="copyBodyBtn">Copy</button>
+            </div>
+            <div id="previewBody" class="preview-body"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+  </footer>
+  </div>
+</body>
+</html>
