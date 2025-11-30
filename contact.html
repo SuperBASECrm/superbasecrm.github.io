@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuperBase CRM - Contact</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="home-page">
+  <header class="home-header">
+    <div class="home-bar">
+      <div class="home-brand">your every day Superbase CRM</div>
+      <nav class="home-nav">
+        <a href="index.html#home">Home</a>
+        <a href="index.html#templates">Templates &amp; Sequences</a>
+        <a href="index.html#blog">Blog</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="home-login-btn" href="crm-interface.html">Login</a>
+    </div>
+  </header>
+
+  <main class="home-main">
+    <section id="contact" class="home-card home-contact">
+      <div class="home-pill">Contact</div>
+      <h1 class="home-subtitle">Tell us what you need</h1>
+      <p class="home-text">Share a bit about your team and we will follow up. All fields are required so we can reply with the right context.</p>
+      <form class="home-contact-form">
+        <label>
+          Name
+          <input type="text" name="name" required placeholder="Your name">
+        </label>
+        <label>
+          Email
+          <input type="email" name="email" required placeholder="you@example.com">
+        </label>
+        <label>
+          Phone number
+          <input type="tel" name="phone" required placeholder="(555) 123-4567">
+        </label>
+        <label class="home-contact-message">
+          Message
+          <textarea name="message" rows="4" required placeholder="How can we help?"></textarea>
+        </label>
+        <button type="button" class="home-login-btn home-contact-submit">Send</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="home-footer">
+    Built for teams that want more selling time and fewer clicks.
+  </footer>
+</body>
+</html>
